@@ -37,16 +37,25 @@
 
   const controls = new OrbitControls(camera, renderer.domElement);
 
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-  const cube = new THREE.Mesh(geometry, material);
+  class box extends THREE.Mesh {
+    constructor(width, height, depth, color = '#00ff00') {
+      super(
+        new THREE.BoxGeometry(width, height, depth),
+        new THREE.MeshStandardMaterial({ color })
+      );
+
+      this.height = height;
+      this.width = width;
+      this.depth = depth;
+    }
+  }
+
+  const cube = new box(1, 1, 1);
   cube.castShadow = true;
   scene.add(cube);
 
-  const ground = new THREE.Mesh(
-    new THREE.BoxGeometry(5, 0.5, 10),
-    new THREE.MeshStandardMaterial({ color: 0x0000ff })
-  );
+  const ground = new box(5, 0.5, 10, '#0000ff');
+
   ground.receiveShadow = true;
   ground.position.y = -2;
   scene.add(ground);
@@ -59,11 +68,14 @@
 
   camera.position.z = 5;
 
+  console.log(cube.position.y - cube.height / 2);
+  console.log(ground.position.y + ground.height / 2);
+
   function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
-    /* cube.position.y += -0.01; */
-/*  cube.rotation.x += 0.01;
+    /*     cube.position.y += -0.01; 
+    cube.rotation.x += 0.01;
     cube.rotation.y += 0.01; */
   }
   animate();
