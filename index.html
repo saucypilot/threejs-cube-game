@@ -1,6 +1,7 @@
 <style>
   body {
     margin: 0;
+    background: linear-gradient(to bottom, blue, white);
   }
 </style>
 
@@ -30,7 +31,9 @@
     1000
   );
 
-  const renderer = new THREE.WebGLRenderer();
+  camera.position.set(4.61, 2.75, 8);
+
+  const renderer = new THREE.WebGLRenderer({alpha: true,  antialias: true});
   renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
@@ -101,7 +104,9 @@
       this.velocity.y += this.gravity;
       //collision
       if (boxCollision({box1: this, box2: ground})) {
-        this.velocity.y *= 0.8;
+        const friction = 0.5;
+
+        this.velocity.y *= friction;
         this.velocity.y = -this.velocity.y;
       } else {
         this.position.y += this.velocity.y;
@@ -122,10 +127,10 @@
   scene.add(cube);
 
   const ground = new box(
-    5,
-    0.5,
     10,
-    "#0000ff",
+    0.5,
+    50,
+    "#1d2951",
     { x: 0, y: 0, z: 0 },
     { x: 0, y: -2, z: 0 }
   );
@@ -135,9 +140,10 @@
 
   const light = new THREE.DirectionalLight(0xffffff, 1);
   light.position.y = 3;
-  light.position.z = 2;
+  light.position.z = 1;
   light.castShadow = true;
   scene.add(light);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
   camera.position.z = 5;
 
@@ -173,6 +179,9 @@
       case 'KeyW':
         keys.w.pressed = true;
         break;
+      case 'Space':
+        cube.velocity.y = 0.2;
+        break;
     }
   });
 
@@ -193,11 +202,10 @@
     }
   });
 
-  const enemy = new box(1, 1, 1, 'red', { x: 0, y: 0, z: 0.005 }, { x: 0, y: 0, z: -4 }, true);
-  enemy.castShadow = true;
-  scene.add(enemy);
+  const enemies = [];
 
-  const enemies = [enemy];
+  let frames = 0;
+  let spawnRate = 100;
 
   function animate() {
     const animationId = requestAnimationFrame(animate);
@@ -228,6 +236,19 @@
         alert('Game Over');
       }
     });
+    
+    if (frames % spawnRate === 0) {
+      if (spawnRate > 10) {
+        spawnRate -= 1;
+      }
+
+      const enemy = new box(1, 1, 1, 'red', { x: 0, y: 0, z: 0.005 }, { x:  (Math.random() - 0.5) * 10, y: 0, z: -20 }, true);
+      enemy.castShadow = true;
+      scene.add(enemy);
+      enemies.push(enemy);
+    }
+
+    frames++;
   }
   animate();
 </script>
